@@ -1,0 +1,9 @@
+services:
+  app:
+    container_name: tasks-app
+    image: tasks:latest
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - 5081:80
+      - 5083:5173

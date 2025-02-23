@@ -1,0 +1,1 @@
+FROM iamjothees/laravel-image:php8.3
