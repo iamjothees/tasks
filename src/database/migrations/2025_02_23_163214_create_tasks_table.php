@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Task;
+use App\Models\TaskActivity;
+use App\Models\TaskAssignee;
+use App\Models\TaskRecursion;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +19,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description')->default('');
+            $table->text('description')->nullable();
             $table->timestamp('next_schedule_at')->nullable();
             $table->string('recursion')->nullable(); //  dynamic, once, daily, weekly, monthly , yearly
             $table->timestamp('completed_at')->nullable();
@@ -24,21 +29,21 @@ return new class extends Migration
 
         Schema::create('task_assignee', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('task_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('assignee_id')->constrained('users')->cascadeOnDelete();
-            
+            $table->foreignIdFor(Task::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class, 'assignee_id')->constrained('users')->cascadeOnDelete();
+            $table->timestamps();
         });
         
         Schema::create('task_activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('task_assignee_id')->constrained('task_assignee')->onDelete('cascade');
+            $table->foreignIdFor(TaskAssignee::class, 'task_assignee_id')->constrained('task_assignee');
             $table->timestamp('started_at');
             $table->timestamp('completed_at')->nullable();
         });
 
         Schema::create('task_activity_pauses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('task_activity_id')->constrained()->onDelete('cascade');
+            $table->foreignIdFor(TaskActivity::class)->constrained()->cascadeOnDelete();
             $table->timestamp('paused_at');
             $table->timestamp('resumed_at')->nullable();
         });

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskActivityPause extends Model
 {
-    /** @use HasFactory<\Database\Factories\TaskActivityPauseFactory> */
     use HasFactory;
+
+    public $timestamps = false;
 }

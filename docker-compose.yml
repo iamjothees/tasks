@@ -1,9 +1,21 @@
 services:
   app:
-    container_name: tasks-app
+    container_name: tasks
     image: tasks:latest
     volumes:
       - ./src:/var/www/html
     ports:
       - 5081:80
       - 5083:5173
+  db:
+    container_name: tasks-db
+    image: mysql:8.0
+    # command: --default-authentication-plugin=mysql_native_password
+    environment:
+        MYSQL_DATABASE: tasks
+        MYSQL_USER: tasks
+        MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+        - ./dbdata:/var/lib/mysql
+    ports: 
+        - "5082:3306"
