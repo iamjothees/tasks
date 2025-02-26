@@ -51,7 +51,7 @@ class TaskResource extends Resource
                 ])
             ])
             ->contentGrid([
-                'md' => 2,
+                'lg' => 2,
                 '2xl' => 3
             ])
             ->filters([

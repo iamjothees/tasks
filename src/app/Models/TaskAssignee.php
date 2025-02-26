@@ -9,7 +9,7 @@ class TaskAssignee extends Pivot
 {
     use HasFactory;
 
-    protected $appends = ['can_start_timer', 'can_pause_timer', 'can_resume_timer', 'can_stop_timer'];
+    // protected $appends = ['can_start_timer', 'can_pause_timer', 'can_resume_timer', 'can_stop_timer'];
 
     public function task(){
         return $this->belongsTo(Task::class);
@@ -23,30 +23,38 @@ class TaskAssignee extends Pivot
         return $this->hasOne(TaskActivity::class, 'task_assignee_id')->latestOfMany('id'); 
     }
 
-    public function latestActiveActivity(){
-        return $this->hasOne(TaskActivity::class, 'task_assignee_id')->latestOfMany('id')->whereNull('completed_at'); 
+    public function activeActivity(){
+        return $this->latestActivity()->whereNull('completed_at'); 
     }
 
     public function oldestActivity(){
         return $this->oldestOfMany('id', TaskActivity::class, 'task_assignee_id'); 
     }
 
-    public function getCanStartTimerAttribute(): bool{
-        return $this->activities()->whereNull('completed_at')->doesntExist();
+    public function canStartTimer(): bool{
+        return $this->activeActivity()->doesntExist();
     }
 
-    public function getCanPauseTimerAttribute(): bool{
-        return $this->latestActiveActivity()->exists() && (
-            $this->latestActiveActivity->pauses()->doesntExist() ||
-            $this->latestActiveActivity->pauses()->whereNull('resumed_at')->doesntExist()
-        );
+    public function canPauseTimer(?TaskActivity $activity = null): bool{
+        return 
+            $activity && $this->activeActivity()->exists() 
+            && $this->activeActivity()->first('id')->id === $activity->id
+            && $this->activeActivity->activePause()->doesntExist();
     }
 
-    public function getCanResumeTimerAttribute(): bool{
-        return $this->latestActiveActivity()->exists() && $this->latestActiveActivity->pauses()->whereNull('resumed_at')->exists();
+    public function canResumeTimer(?TaskActivityPause $pause = null): bool{
+        return 
+            $pause && $this->activeActivity?->activePause()->exists()
+            && $this->activeActivity->activePause()->first('id')->id === $pause->id;
     }
 
-    public function getCanStopTimerAttribute(): bool{
-        return $this->latestActiveActivity()->exists();
+    public function canStopTimer(?TaskActivity $activity = null): bool{
+        return 
+            $activity && $this->activeActivity()->exists() 
+            && $this->activeActivity()->first('id')->id === $activity->id;
+    }
+
+    public function canResetTimer(?TaskActivity $activity = null): bool{
+        return $this->canStopTimer(activity: $activity);
     }
 }

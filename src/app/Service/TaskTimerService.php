@@ -21,7 +21,7 @@ class TaskTimerService
         $this->now = Context::get('now', now());
     }
 
-    public function act(TaskAssignee $taskAssignee, TaskTimerAction $action, TaskActivity|TaskActivityPause $actionable)
+    public function act(TaskAssignee $taskAssignee, TaskTimerAction $action, null|TaskActivity|TaskActivityPause $actionable = null)
     {
         $this->taskAssignee = $taskAssignee;
         switch($action){
@@ -29,38 +29,49 @@ class TaskTimerService
                 $this->startTimer();
                 break;
             case TaskTimerAction::PAUSE:
-                $this->pauseTimer();
+                $this->pauseTimer(activity: $actionable);
                 break;
             case TaskTimerAction::RESUME:
-                $this->resumeTimer();
+                $this->resumeTimer(pause: $actionable);
                 break;
             case TaskTimerAction::STOP:
-                $this->stopTimer();
+                $this->stopTimer(activity: $actionable);
+                break;
+            case TaskTimerAction::RESET:
+                $this->resetTimer(activity: $actionable);
                 break;
         }
     }
 
     protected function startTimer(): Carbon{
-        if ( !$this->taskAssignee->can_start_timer ) throw new \Exception('You cannot start a timer');
+        if ( !$this->taskAssignee->canStartTimer() ) throw new \Exception('You cannot start a timer');
 
         return $this->taskAssignee->activities()->create(['started_at' => $this->now])->started_at;
     }
 
-    protected function pauseTimer(): Carbon{
-        if ( !$this->taskAssignee->can_pause_timer ) throw new \Exception('You cannot pause a timer');
+    protected function pauseTimer(TaskActivity $activity): Carbon{
+        if ( !$this->taskAssignee->canPauseTimer(activity: $activity) ) throw new \Exception('You cannot pause this timer');
 
-        return $this->taskAssignee->latestActiveActivity()->create(['started_at' => $this->now])->started_at;
+        return $activity->pauses()->create(['paused_at' => $this->now])->paused_at;
     }
 
-    protected function resumeTimer(): Carbon{
-        if ( !$this->taskAssignee->can_start_timer ) throw new \Exception('You cannot start a timer');
+    protected function resumeTimer(TaskActivityPause $pause): Carbon{
+        if ( !$this->taskAssignee->canResumeTimer(pause: $pause) ) throw new \Exception('You cannot resume this timer');
 
-        return $this->taskAssignee->activities()->create(['started_at' => $this->now])->started_at;
+        $pause->update(['resumed_at' => $this->now]);
+        return $pause->resumed_at;
     }
 
-    protected function stopTimer(): Carbon{
-        if ( !$this->taskAssignee->can_start_timer ) throw new \Exception('You cannot start a timer');
+    protected function stopTimer(TaskActivity $activity): Carbon{
+        if ( !$this->taskAssignee->canStopTimer(activity: $activity) ) throw new \Exception('You cannot stop this timer');
 
-        return $this->taskAssignee->activities()->create(['started_at' => $this->now])->started_at;
+        $activity->update(['completed_at' => $this->now]);
+        return $activity->completed_at;
+    }
+
+    protected function resetTimer(TaskActivity $activity): void{
+        if ( !$this->taskAssignee->canResetTimer(activity: $activity) ) throw new \Exception('You cannot reset this timer');
+
+        $activity->delete();
     }
 }

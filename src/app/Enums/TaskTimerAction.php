@@ -8,5 +8,6 @@ enum TaskTimerAction: string
     case PAUSE = "pause";
     case RESUME = "resume";
     case STOP = "stop";
+    case RESET = "reset";
 
 }

@@ -54,7 +54,8 @@ class AppPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->viteTheme('resources/css/filament/app/theme.css')
-            ->spa();
+            ->spa()
+            ->sidebarCollapsibleOnDesktop();
     }
     public function register(): void
     {

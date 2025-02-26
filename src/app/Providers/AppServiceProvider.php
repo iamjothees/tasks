@@ -26,6 +26,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::unguard();
-        Context::add(key: 'now', value: now());
+        Context::add(key: 'now', value: now()->micro(0));
     }
 }
