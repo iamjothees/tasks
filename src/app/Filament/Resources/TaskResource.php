@@ -51,8 +51,7 @@ class TaskResource extends Resource
                 ])
             ])
             ->contentGrid([
-                'lg' => 2,
-                '2xl' => 3
+                'md' => 2,
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
