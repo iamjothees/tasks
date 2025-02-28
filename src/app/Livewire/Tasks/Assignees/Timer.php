@@ -38,6 +38,7 @@ class Timer extends Component
         try {
             app(TaskTimerService::class)->act(taskAssignee: $this->taskAssignee, action: $action, actionable: $actionable);
             $this->refreshTaskAssignee();
+            if ($action === TaskTimerAction::STOP) $this->js('location.reload()');
         } catch (\Throwable $th) {
             config('app.env') === 'local' && throw $th;
             return null;
@@ -52,7 +53,6 @@ class Timer extends Component
     }
 
     public function canPause(?TaskActivity $activity = null): bool{
-        // $activity = TaskActivity::find($activityId);
         return $this->taskAssignee->canPauseTimer(activity: $activity);
     }
 
@@ -61,7 +61,6 @@ class Timer extends Component
     }
 
     public function canStop(?TaskActivity $activity = null): bool{
-        // $activity = TaskActivity::find($activityId);
         return $this->taskAssignee->canStopTimer(activity: $activity);
     }
 

@@ -31,6 +31,10 @@ class TaskActivity extends Model
         return app(TaskService::class)->getActiveTimeInSeconds(activity: $this);
     }
 
+    public function getTimeTakenInSecondsForHumansAttribute(){
+        return sprintf('%dh %dm %ds', $this->time_taken_in_seconds / 3600, floor($this->time_taken_in_seconds / 60) % 60, $this->time_taken_in_seconds % 60); ;
+    }
+
     public function pauses(){
         return $this->hasMany( TaskActivityPause::class, 'task_activity_id' ); 
     }

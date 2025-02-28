@@ -9,8 +9,6 @@ class TaskAssignee extends Pivot
 {
     use HasFactory;
 
-    // protected $appends = ['can_start_timer', 'can_pause_timer', 'can_resume_timer', 'can_stop_timer'];
-
     public function task(){
         return $this->belongsTo(Task::class);
     }
@@ -25,6 +23,10 @@ class TaskAssignee extends Pivot
 
     public function activeActivity(){
         return $this->latestActivity()->whereNull('completed_at'); 
+    }
+
+    public function latestCompletedActivity(){
+        return $this->latestActivity()->whereNotNull('completed_at');
     }
 
     public function oldestActivity(){

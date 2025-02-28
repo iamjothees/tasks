@@ -45,9 +45,11 @@ class TaskResource extends Resource
                     Tables\Columns\TextColumn::make('title')
                         ->description(fn (Task $task): string => $task->description)
                         ->searchable(),
-                    Tables\Columns\ViewColumn::make('status')
+                    Tables\Columns\ViewColumn::make('timer')
                         ->view('filament.tables.columns.tasks.timer')
-                        ->url('javascript:void(0)')
+                        ->url('javascript:void(0)'),
+                    Tables\Columns\TextColumn::make('authAssigneePivot.latestCompletedActivity.timeTakenInSecondsForHumans')
+                        ->view('filament.tables.columns.tasks.recently-completed-activity-time-taken'),
                 ])
             ])
             ->contentGrid([
@@ -65,7 +67,7 @@ class TaskResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
-                ]),
+                ])->hidden(true),
             ]);
     }
 

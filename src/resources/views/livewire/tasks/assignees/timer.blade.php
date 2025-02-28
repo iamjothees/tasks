@@ -1,25 +1,13 @@
-{{-- <div x-data="timer" data-task_assignee="{{ json_encode($taskAssignee->toArray()) }}" x-bind="root" class="mt-3 w-full" >
-    <div class="p-4 h-48 bg-black border border-white m-3 rounded-xl shadow-md space-y-4" :class="loading ?`animate-pulse` : ``">
-        <div class="text-center text-2xl font-bold">
-            <span x-text="formattedTime"></span>
-        </div>
-        <div class="flex justify-center space-x-2">
-            <button @click.stop="start" :disabled="!can.start" class="px-4 py-2 border rounded" :class="can.start ? ` text-green-700 border-green-700 hover:bg-green-700 hover:text-white` : `border-gray-500`">Start</button>
-            <button @click.stop="pause" :disabled="!can.pause" class="px-4 py-2 border rounded" :class="can.pause ? ` text-amber-700 border-amber-700 hover:bg-amber-700 hover:text-white` : `border-gray-500`">Pause</button>
-            <button @click.stop="resume" :disabled="!can.resume" class="px-4 py-2 border rounded" :class="can.resume ? ` text-blue-700 border-blue-700 hover:bg-blue-700 hover:text-white` : `border-gray-500`">Resume</button>
-            <button @click.stop="stop" :disabled="!can.stop" class="px-4 py-2 border rounded" :class="can.stop ? ` text-red-700 border-red-700 hover:bg-red-700 hover:text-white` : `border-gray-500`">Stop</button>
-        </div>
-        <button @click.stop="reset" :disabled="!can.stop" class="min-w-full px-4 py-2 border text-white rounded" :class="can.stop ? `bg-red-700 hover:bg-red-900` : `bg-gray-500`">Reset</button>
-    </div>
-</div> --}}
 <div x-data="timer" data-task_assignee="{{ json_encode($taskAssignee->toArray()) }}" x-bind="root" class="mt-3 w-full" >
-    <div class="p-4 bg-sky-950 border-2 border-slate-500 m-3 rounded-xl shadow-md space-y-4" :class="loading ?`animate-pulse` : ``">
+    <div class="p-4 bg-sky-700 dark:bg-sky-950 text-white border-2 border-slate-500 m-3 rounded-xl shadow-md space-y-4" :class="loading ?`animate-pulse` : ``">
         <div class="text-center text-3xl font-bold">
             <span x-text="formattedTime"></span>
         </div>
         <div class="flex justify-center">
             <div class="flex-grow flex flex-row gap-3 sm:gap-0 flex-wrap justify-around sm:justify-between items-center max-w-[50%]">
-                <x-tasks.assignees.timers.action-button @click.stop="reset" class="order-2 sm:order-1 w-10 h-10" x-bind:disabled="!can.stop" x-bind:class="can.stop ? `bg-gray-500 text-gray-300 hover:bg-gray-500/50` : `bg-gray-600/35 text-gray-500`">
+                <x-tasks.assignees.timers.action-button @click.stop="reset" class="order-2 sm:order-1 w-10 h-10" x-bind:disabled="!can.stop" 
+                    x-bind:class="can.stop ? `border-2 bg-gray-500 dark:bg-gray-500/50 text-gray-300/90 dark:text-gray-300/60 border-gray-300/90 dark:border-gray-300/60 hover:bg-gray-500/75 hover:dark:bg-gray-500/40  hover:text-gray-300  hover:dark:text-gray-300/60` : `bg-gray-600/75 text-gray-300/50`"
+                >
                     <i class="fa-solid fa-rotate-right fa-lg"></i>
                 </x-tasks.assignees.timers.action-button>
 
@@ -36,12 +24,12 @@
                     <i class="fa-solid fa-play fa-2xl"></i>
                 </x-tasks.assignees.timers.action-button>
                 {{-- Placeholder --}}
-                <x-tasks.assignees.timers.action-button x-show="(!can.start && !can.pause && !can.resume)" class="order-1 sm:order-2 min-w-[100%] sm:min-w-0 w-14 h-14 bg-sky-800/15 text-sky-900 border-sky-900" disabled >
+                <x-tasks.assignees.timers.action-button x-show="!(can.start || can.pause || can.resume)" class="order-1 sm:order-2 min-w-[100%] sm:min-w-0 w-14 h-14 bg-sky-800/15 text-sky-900 border-sky-900" disabled >
                     <i class="fa-solid fa-play fa-2xl"></i>
                 </x-tasks.assignees.timers.action-button>
     
                 
-                <x-tasks.assignees.timers.action-button @click.stop="stop" class="order-3 w-10 h-10" x-bind:disabled="!can.stop" x-bind:class="can.stop ? `bg-red-600/35 text-red-500 hover:bg-red-600/75 hover:text-red-300` : `bg-red-800/55 text-red-100/45`">
+                <x-tasks.assignees.timers.action-button @click.stop="stop" class="order-3 w-10 h-10" x-bind:disabled="!can.stop" x-bind:class="can.stop ? `border-2 bg-red-800/50 text-red-600 border-red-600 hover:bg-red-800/75 hover:text-red-500` : `bg-red-800/35 text-red-100/45`">
                     <i class="fa-solid fa-stop fa-lg"></i>
                 </x-tasks.assignees.timers.action-button>
                 
@@ -50,7 +38,6 @@
                 <button @click.stop="stop" :disabled="!can.stop" class="px-4 py-2 border rounded" :class="can.stop ? ` text-red-700 border-red-700 hover:bg-red-700 hover:text-white` : `border-gray-500`">Stop</button> --}}
             </div>
         </div>
-        
     </div>
 </div>
 
@@ -148,7 +135,7 @@
                     that.loading = true;
 
                     if (!that.taskAssignee) return;
-                    that.time = that.taskAssignee.latest_activity?.time_taken_in_seconds ?? 0;
+                    that.time = that.taskAssignee.active_activity?.time_taken_in_seconds ?? 0;
                     if (that.taskAssignee.latest_activity?.is_running){
                         that.interval = setInterval(() =>  that.time++ , 1000);
                     }

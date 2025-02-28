@@ -6,6 +6,7 @@ use App\Enums\TaskRecursion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Task extends Model
 {
@@ -21,5 +22,9 @@ class Task extends Model
         return $this->belongsToMany(User::class, 'task_assignee', 'task_id', 'assignee_id')
             ->using(TaskAssignee::class)
             ->withPivot(['id']);
+    }
+
+    public function authAssigneePivot(){
+        return $this->hasOne(TaskAssignee::class)->where('assignee_id', Auth::id());
     }
 }
