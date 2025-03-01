@@ -73,5 +73,6 @@ class TaskTimerService
         if ( !$this->taskAssignee->canResetTimer(activity: $activity) ) throw new \Exception('You cannot reset this timer');
 
         $activity->delete();
+        $this->startTimer();
     }
 }

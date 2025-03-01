@@ -28,7 +28,6 @@ class TaskResource extends Resource
                 Forms\Components\TextInput::make('title')
                     ->required(),
                 Forms\Components\Textarea::make('description')
-                    ->required()
                     ->columnSpanFull(),
                 Forms\Components\DateTimePicker::make('next_schedule_at'),
                 Forms\Components\TextInput::make('recursion'),
@@ -43,7 +42,7 @@ class TaskResource extends Resource
                 Stack::make([
                     // Columns
                     Tables\Columns\TextColumn::make('title')
-                        ->description(fn (Task $task): string => $task->description)
+                        ->description(fn (Task $task): string => $task->description ?? '-')
                         ->searchable(),
                     Tables\Columns\ViewColumn::make('timer')
                         ->view('filament.tables.columns.tasks.timer')

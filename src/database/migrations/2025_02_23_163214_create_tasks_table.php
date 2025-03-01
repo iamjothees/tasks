@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamp('next_schedule_at')->nullable();
-            $table->string('recursion')->nullable(); //  dynamic, once, daily, weekly, monthly , yearly
+            $table->string('recursion'); //  dynamic, once, daily, weekly, monthly , yearly
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
