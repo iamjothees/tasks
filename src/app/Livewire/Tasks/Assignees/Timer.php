@@ -9,7 +9,6 @@ use App\Models\TaskActivityPause;
 use App\Models\TaskAssignee;
 use App\Models\User;
 use App\Service\TaskTimerService;
-use App\Services\TaskService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -28,7 +27,7 @@ class Timer extends Component
         return view('livewire.tasks.assignees.timer');
     }
 
-    public function act(TaskTimerAction $action, int $actionableId = null): TaskAssignee|null{
+    public function act(TaskTimerAction $action, ?int $actionableId = null): TaskAssignee|null{
         $actionable = match ($action) {
             TaskTimerAction::START => null,
             TaskTimerAction::PAUSE => TaskActivity::find($actionableId),
@@ -36,13 +35,13 @@ class Timer extends Component
             TaskTimerAction::STOP, TaskTimerAction::RESET => TaskActivity::find($actionableId),
         };
         try {
-            app(TaskTimerService::class)->act(taskAssignee: $this->taskAssignee, action: $action, actionable: $actionable);
-            $this->refreshTaskAssignee();
-            if ($action === TaskTimerAction::STOP) $this->js('location.reload()');
+            app(TaskTimerService::class, ['task' => $this->task])
+                ->act(taskAssignee: $this->taskAssignee, action: $action, actionable: $actionable);
         } catch (\Throwable $th) {
-            config('app.env') === 'local' && throw $th;
+            (config('app.env') === 'local') && throw $th;
             return null;
         }
+        if ( in_array($action, [TaskTimerAction::START, TaskTimerAction::STOP ]) ) $this->js('location.reload()');
         return $this->refreshTaskAssignee();
     }
 
@@ -65,6 +64,6 @@ class Timer extends Component
     }
 
     public function refreshTaskAssignee(): TaskAssignee{
-        return $this->taskAssignee->refresh()->load('activeActivity.activePause', 'latestActivity');
+        return $this->taskAssignee->refresh()->append('active_pause')->load('activeActivity', 'latestActivity');
     }
 }

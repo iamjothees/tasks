@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\UserService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -9,8 +10,16 @@ class TaskAssignee extends Pivot
 {
     use HasFactory;
 
+    public function getActivePauseAttribute(): ?TaskActivityPause{
+        return $this->activeActivity?->activePause;
+    }
+
     public function task(){
         return $this->belongsTo(Task::class);
+    }
+
+    public function assignee(){
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     public function activities(){
@@ -34,7 +43,9 @@ class TaskAssignee extends Pivot
     }
 
     public function canStartTimer(): bool{
-        return $this->activeActivity()->doesntExist();
+        return 
+        $this->activeActivity()->doesntExist()
+        &&  app(UserService::class)->getActiveTaskActivities($this->assignee)->isEmpty();
     }
 
     public function canPauseTimer(?TaskActivity $activity = null): bool{

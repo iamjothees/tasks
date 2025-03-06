@@ -24,7 +24,11 @@ class Task extends Model
             ->withPivot(['id']);
     }
 
+    public function assigneesPivots(){
+        return $this->hasMany(TaskAssignee::class, 'assignee_id');
+    }
+
     public function authAssigneePivot(){
-        return $this->hasOne(TaskAssignee::class)->where('assignee_id', Auth::id());
+        return $this->hasOne(TaskAssignee::class, 'assignee_id')->where('assignee_id', Auth::id());
     }
 }

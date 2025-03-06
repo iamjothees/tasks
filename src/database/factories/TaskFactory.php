@@ -18,14 +18,14 @@ class TaskFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->sentence,
-            'next_schedule_at' => $this->faker->dateTimeBetween('now', '+1 week'),
-            'recursion' => $this->faker->randomElement(TaskRecursion::cases()),
+            'title' => fake()->sentence(),
+            'description' => fake()->sentence(),
+            'next_schedule_at' => fake()->dateTimeBetween('now', '+1 week'),
+            'recursion' => fake()->randomElement(TaskRecursion::cases()),
         ];
     }
 
     public function completed($at = null): self{
-        return $this->state(fn () => [ 'completed_at' => $at ?? $this->faker->dateTimeBetween(), ]);
+        return $this->state(fn () => [ 'completed_at' => $at ?? fake()->dateTimeBetween(), ]);
     }
 }

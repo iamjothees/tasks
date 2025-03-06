@@ -34,7 +34,7 @@ Alpine.data( 'timer', () => ({
                     this.$wire.canStart().then( (can) => this.can.start = can ),
                     (this.taskAssignee.active_activity ? this.$wire.canPause(this.taskAssignee.active_activity) : this.$wire.canPause())
                         .then( (can) => this.can.pause = can ),
-                    (this.taskAssignee.active_activity?.active_pause ? this.$wire.canResume(this.taskAssignee.active_activity?.active_pause) : this.$wire.canResume())
+                    (this.taskAssignee.active_pause ? this.$wire.canResume(this.taskAssignee.active_pause) : this.$wire.canResume())
                         .then( (can) => this.can.resume = can ),
                     (this.taskAssignee.active_activity ? this.$wire.canStop(this.taskAssignee.active_activity) : this.$wire.canStop())
                         .then( (can) => this.can.stop = can ),
@@ -69,7 +69,7 @@ Alpine.data( 'timer', () => ({
             .catch( err => console.log(err) );
     },
     stop() {
-        if (confirm('Are you sure you want to stop the timer?'))
+        if (confirm('Are you sure you want to complete the activity?'))
         this.$wire.act('stop', this.taskAssignee.active_activity.id)
             .then( taskAssignee => this.taskAssignee = taskAssignee)
             .catch( err => console.log(err) );

@@ -29,8 +29,8 @@
                 </x-tasks.assignees.timers.action-button>
     
                 
-                <x-tasks.assignees.timers.action-button @click.stop="stop" class="order-3 w-10 h-10" x-bind:disabled="!can.stop" x-bind:class="can.stop ? `border-2 bg-red-800/50 text-red-600 border-red-600 hover:bg-red-800/75 hover:text-red-500` : `bg-red-800/35 text-red-100/45`">
-                    <i class="fa-solid fa-stop fa-lg"></i>
+                <x-tasks.assignees.timers.action-button @click.stop="stop" class="order-3 w-10 h-10" x-bind:disabled="!can.stop" x-bind:class="can.stop ? `border-2 bg-green-800/50 text-green-600 border-green-600 hover:bg-green-800/75 hover:text-green-500` : `bg-green-800/35 text-green-100/45`">
+                    <i class="fa-solid fa-check fa-xl"></i>
                 </x-tasks.assignees.timers.action-button>
                 
                 {{-- <button @click.stop="pause" :disabled="!can.pause" class="px-4 py-2 border rounded" :class="can.pause ? ` text-amber-700 border-amber-700 hover:bg-amber-700 hover:text-white` : `border-gray-500`">Pause</button>

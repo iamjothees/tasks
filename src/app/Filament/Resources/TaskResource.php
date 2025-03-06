@@ -24,6 +24,7 @@ class TaskResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->required(),
@@ -39,26 +40,16 @@ class TaskResource extends Resource
     {
         return $table
             ->columns([
-                Stack::make([
-                    // Columns
-                    Tables\Columns\TextColumn::make('title')
-                        ->description(fn (Task $task): string => $task->description ?? '-')
-                        ->searchable(),
-                    Tables\Columns\ViewColumn::make('timer')
-                        ->view('filament.tables.columns.tasks.timer')
-                        ->url('javascript:void(0)'),
-                    Tables\Columns\TextColumn::make('authAssigneePivot.latestCompletedActivity.timeTakenInSecondsForHumans')
-                        ->view('filament.tables.columns.tasks.recently-completed-activity-time-taken'),
-                ])
-            ])
-            ->contentGrid([
-                'md' => 2,
+                Tables\Columns\TextColumn::make('title')
+                    ->description(fn (Task $task): string => $task->description ?? '-')
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
+            ->recordUrl(fn ($record) => self::getUrl('view-page', [$record->id]))
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()->slideOver()->modalWidth('md'),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -81,9 +72,9 @@ class TaskResource extends Resource
     {
         return [
             'index' => Pages\ListTasks::route('/'),
-            'create' => Pages\CreateTask::route('/create'),
-            'view' => Pages\ViewTask::route('/{record}'),
-            'edit' => Pages\EditTask::route('/{record}/edit'),
+            // 'create' => Pages\CreateTask::route('/create'),
+            'view-page' => Pages\ViewTask::route('/{record}'),
+            // 'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
     }
 

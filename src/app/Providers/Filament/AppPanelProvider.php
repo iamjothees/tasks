@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use BetterFuturesStudio\FilamentLocalLogins\LocalLogins;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -11,7 +12,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentView;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -56,7 +56,9 @@ class AppPanelProvider extends PanelProvider
             ])
             ->viteTheme(['resources/css/filament/app/theme.css'])
             ->spa()
-            ->sidebarCollapsibleOnDesktop();
+            ->sidebarCollapsibleOnDesktop()
+            ->plugin(new LocalLogins())
+            ->topNavigation();
     }
     public function register(): void
     {

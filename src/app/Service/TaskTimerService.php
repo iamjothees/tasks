@@ -3,11 +3,13 @@
 namespace App\Service;
 
 use App\Enums\TaskTimerAction;
+use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\TaskActivityPause;
 use App\Models\TaskAssignee;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Gate;
 
 class TaskTimerService
 {
@@ -16,8 +18,9 @@ class TaskTimerService
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(Task $task)
     {
+        Gate::authorize('act-on-task-timer', ['task' => $task])->allowed();
         $this->now = Context::get('now', now());
     }
 
