@@ -8,7 +8,7 @@ use App\Models\TaskActivity;
 use App\Models\TaskActivityPause;
 use App\Models\TaskAssignee;
 use App\Models\User;
-use App\Service\TaskTimerService;
+use App\Services\TaskTimerService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
