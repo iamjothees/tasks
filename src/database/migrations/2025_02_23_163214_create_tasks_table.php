@@ -1,9 +1,9 @@
 <?php
 
+use App\Enums\TaskRecursion;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\TaskAssignee;
-use App\Models\TaskRecursion;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,11 +18,20 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+
             $table->string('title');
             $table->text('description')->nullable();
+
+            $table->tinyInteger('priority_level');
+            $table->foreign('priority_level')->references('level')->on('task_priorities')->onDelete('restrict')->onUpdate('cascade');
+            $table->tinyInteger('status_level');
+            $table->foreign('status_level')->references('level')->on('task_statuses')->onDelete('restrict')->onUpdate('cascade');
+
             $table->timestamp('next_schedule_at')->nullable();
-            $table->string('recursion'); //  dynamic, once, daily, weekly, monthly , yearly
+            $table->string('recursion')->default(TaskRecursion::NEVER); //  dynamic, once, daily, weekly, monthly , yearly
+
             $table->timestamp('completed_at')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

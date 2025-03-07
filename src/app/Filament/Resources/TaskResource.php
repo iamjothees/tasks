@@ -5,12 +5,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Filament\Resources\TaskResource\RelationManagers;
 use App\Models\Task;
+use App\Services\TaskPriorityService;
+use App\Services\TaskStatusService;
+use App\Settings\TaskSettings;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Tables\Table;
+use Filament\Support\Colors\Color;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
@@ -28,36 +31,25 @@ class TaskResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->required(),
-                Forms\Components\Textarea::make('description')
+                Forms\Components\Select::make('priority_level')
+                    ->relationship(name: 'priority', titleAttribute: 'name', modifyQueryUsing: fn ($query) => $query->orderByDesc('level'))
+                    ->searchable()
+                    ->native(false)
+                    ->preload()
+                    ->createOptionForm(TaskPriorityResource::getformSchema())
+                    ->createOptionUsing(fn (array $data, TaskPriorityService $service) :int => $service->store(data: $data)->level )
+                    ->default(fn (TaskSettings $settings) => $settings->default_priority_level),
+                Forms\Components\RichEditor::make('description')
                     ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('next_schedule_at'),
-                Forms\Components\TextInput::make('recursion'),
-                Forms\Components\DateTimePicker::make('completed_at'),
-            ]);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->description(fn (Task $task): string => $task->description ?? '-')
-                    ->searchable(),
-            ])
-            ->filters([
-                Tables\Filters\TrashedFilter::make(),
-            ])
-            ->recordUrl(fn ($record) => self::getUrl('view-page', [$record->id]))
-            ->actions([
-                Tables\Actions\ViewAction::make()->slideOver()->modalWidth('md'),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ])->hidden(true),
+                
+                Forms\Components\Select::make('status_level')
+                    ->relationship(name: 'status', titleAttribute: 'name', modifyQueryUsing: fn ($query) => $query->orderByDesc('level'))
+                    ->searchable()
+                    ->native(false)
+                    ->preload()
+                    ->createOptionForm(TaskStatusResource::getformSchema())
+                    ->createOptionUsing(fn (array $data, TaskStatusService $service) :int => $service->store(data: $data)->level )
+                    ->default(fn (TaskSettings $settings) => $settings->default_status_level),
             ]);
     }
 
@@ -72,9 +64,9 @@ class TaskResource extends Resource
     {
         return [
             'index' => Pages\ListTasks::route('/'),
-            // 'create' => Pages\CreateTask::route('/create'),
+            'create-page' => Pages\CreateTask::route('/create'),
             'view-page' => Pages\ViewTask::route('/{record}'),
-            // 'edit' => Pages\EditTask::route('/{record}/edit'),
+            'edit-page' => Pages\EditTask::route('/{record}/edit'),
         ];
     }
 
@@ -85,5 +77,31 @@ class TaskResource extends Resource
                 SoftDeletingScope::class,
             ])
             ->whereHas('assignees', fn ($q) => $q->where('assignee_id', Auth::id()));
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('title')
+                            ->label('Title'),
+                        Infolists\Components\TextEntry::make('description')
+                            ->label('Description')
+                            ->formatStateUsing(fn ($state) => $state ?: 'NIL')
+                            ->html()
+                            ->columnSpanFull(),
+                        Infolists\Components\TextEntry::make('priority.name')
+                            ->label('Priority')
+                            ->badge()
+                            ->color(fn ($record) => Color::hex($record->priority->color)),
+                        Infolists\Components\TextEntry::make('status.name')
+                            ->label('Status')
+                            ->badge()
+                            ->color(fn ($record) => Color::hex($record->status->color)),
+                    ])
+                    ->columns(2),
+            ]);
     }
 }

@@ -7,6 +7,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -58,7 +59,14 @@ class AppPanelProvider extends PanelProvider
             ->spa()
             ->sidebarCollapsibleOnDesktop()
             ->plugin(new LocalLogins())
-            ->topNavigation();
+            ->topNavigation()
+            ->navigationGroups([
+                NavigationGroup::make('Task Configs')
+                    ->icon('heroicon-o-wrench-screwdriver'),
+                NavigationGroup::make('Settings')
+                    ->icon('heroicon-o-cog-6-tooth'),
+            ])
+            ->databaseTransactions(true);
     }
     public function register(): void
     {

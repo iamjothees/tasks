@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\TaskRecursion;
+use App\Models\TaskPriority;
+use App\Models\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +22,10 @@ class TaskFactory extends Factory
         return [
             'title' => fake()->sentence(),
             'description' => fake()->sentence(),
+
+            'priority_level' => fn () => TaskPriority::factory()->create()->level,
+            'status_level' => fn () => TaskStatus::factory()->create()->level,
+
             'next_schedule_at' => fake()->dateTimeBetween('now', '+1 week'),
             'recursion' => fake()->randomElement(TaskRecursion::cases()),
         ];

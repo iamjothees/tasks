@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Task;
+use App\Models\TaskPriority;
+use App\Models\TaskStatus;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,12 +18,15 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $user = User::factory()->create([
+        User::factory()->create([
             'name' => 'Joe',
             'email' => 'joe@joecodes.in',
             'password' => 'joe@123'
         ]);
 
-        Task::factory()->create()->assignees()->attach($user->id);
+        TaskPriority::create(['name' => 'default', 'level' => 0, 'color' => '#b8e6fe']);
+        TaskStatus::create(['name' => 'default', 'level' => 0, 'color'=> '#b8e6fe']);
+
+        // Task::factory()->create()->assignees()->attach($user->id);
     }
 }

@@ -31,4 +31,12 @@ class Task extends Model
     public function authAssigneePivot(){
         return $this->hasOne(TaskAssignee::class, 'assignee_id')->where('assignee_id', Auth::id());
     }
+
+    public function priority(){
+        return $this->belongsTo(TaskPriority::class,'priority_level','level');
+    }
+
+    public function status(){
+        return $this->belongsTo(TaskStatus::class,'status_level','level');
+    }
 }
