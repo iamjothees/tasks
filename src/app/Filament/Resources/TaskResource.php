@@ -22,7 +22,7 @@ class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     public static function form(Form $form): Form
     {
@@ -38,7 +38,8 @@ class TaskResource extends Resource
                     ->preload()
                     ->createOptionForm(TaskPriorityResource::getformSchema())
                     ->createOptionUsing(fn (array $data, TaskPriorityService $service) :int => $service->store(data: $data)->level )
-                    ->default(fn (TaskSettings $settings) => $settings->default_priority_level),
+                    ->default(fn (TaskSettings $settings) => $settings->default_priority_level)
+                    ->required(),
                 Forms\Components\RichEditor::make('description')
                     ->columnSpanFull(),
                 
@@ -49,7 +50,8 @@ class TaskResource extends Resource
                     ->preload()
                     ->createOptionForm(TaskStatusResource::getformSchema())
                     ->createOptionUsing(fn (array $data, TaskStatusService $service) :int => $service->store(data: $data)->level )
-                    ->default(fn (TaskSettings $settings) => $settings->default_status_level),
+                    ->default(fn (TaskSettings $settings) => $settings->default_status_level)
+                    ->required(),
             ]);
     }
 
@@ -64,9 +66,9 @@ class TaskResource extends Resource
     {
         return [
             'index' => Pages\ListTasks::route('/'),
-            'create-page' => Pages\CreateTask::route('/create'),
-            'view-page' => Pages\ViewTask::route('/{record}'),
-            'edit-page' => Pages\EditTask::route('/{record}/edit'),
+            'create' => Pages\CreateTask::route('/create'),
+            'view' => Pages\ViewTask::route('/{record}'),
+            'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
     }
 

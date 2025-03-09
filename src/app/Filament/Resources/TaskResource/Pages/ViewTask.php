@@ -16,6 +16,7 @@ class ViewTask extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Actions\DeleteAction::make(),
         ];
     }
 }

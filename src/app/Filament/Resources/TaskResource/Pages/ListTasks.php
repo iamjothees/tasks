@@ -4,6 +4,7 @@ namespace App\Filament\Resources\TaskResource\Pages;
 
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
+use App\Models\TaskPriority;
 use App\Models\TaskStatus;
 use App\Services\TaskService;
 use Filament\Actions;
@@ -28,7 +29,7 @@ class ListTasks extends ListRecords
                     fn () => 
                     app(HtmlString::class, [
                         'html' => '
-                            <a wire:navigate href=\''.TaskResource::getUrl('create-page').'\' class="flex items-center gap-2 underline">
+                            <a wire:navigate href=\''.TaskResource::getUrl('create').'\' class="flex items-center gap-2 underline">
                                 Create Task 
                                 <x-filament::icon >
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
@@ -60,22 +61,29 @@ class ListTasks extends ListRecords
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('status_level')
                     ->options(fn () => TaskStatus::orderBy('level')->pluck('name','level'))
-                    ->searchable()
                     ->width(120)
                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\SelectFilter::make('status_level')
+                    ->options(fn () => TaskStatus::orderBy('level')->pluck('name','level'))
+                    ->label('Status'),
+                Tables\Filters\SelectFilter::make('priority_level')
+                    ->options(fn () => TaskPriority::orderBy('level')->pluck('name','level'))
+                    ->label('Priority'),
             ])
-            ->recordUrl(null)
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make('view-slideover')->slideOver()->modalWidth('lg')->extraAttributes(['class' => 'hidden'])
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\ViewAction::make('view-slideover')
+                        ->url(null)->slideOver()->modalWidth('lg')
+                        ->extraAttributes(['class' => 'hidden'])
                         ->modalHeading(
                             fn ($record) => 
                             app(HtmlString::class, [
                                 'html' => '
-                                    <a wire:navigate href=\''.TaskResource::getUrl('view-page', [$record->id]).'\' class="flex items-center gap-2 underline">
+                                    <a wire:navigate href=\''.self::getResource()::getUrl('view', [$record->id]).'\' class="flex items-center gap-2 underline">
                                         View Task 
                                         <x-filament::icon >
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
@@ -84,13 +92,13 @@ class ListTasks extends ListRecords
                                 '
                             ])
                         ),
-                    Tables\Actions\ViewAction::make()->url(fn ($record) => TaskResource::getUrl('view-page', ['record' => $record->id])),
-                    Tables\Actions\EditAction::make()->slideOver()->modalWidth('lg')
+                    Tables\Actions\EditAction::make('edit-slideover')
+                        ->url(null)->slideOver()->modalWidth('lg')
                         ->modalHeading(
                             fn ($record) => 
                             app(HtmlString::class, [
                                 'html' => '
-                                    <a wire:navigate href=\''.TaskResource::getUrl('edit-page', [$record->id]).'\' class="flex items-center gap-2 underline">
+                                    <a wire:navigate href=\''.self::getResource()::getUrl('edit', [$record->id]).'\' class="flex items-center gap-2 underline">
                                         Edit Task 
                                         <x-filament::icon >
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
@@ -101,7 +109,8 @@ class ListTasks extends ListRecords
                         ),
                 ])
             ])
-            ->recordAction('view-slideover')
+            ->recordUrl(null)
+            ->recordAction(fn ($record) => Auth::user()->can('update', $record) ? 'edit-slideover' : 'view-slideover')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
