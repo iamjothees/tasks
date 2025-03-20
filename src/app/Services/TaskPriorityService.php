@@ -17,4 +17,14 @@ class TaskPriorityService
     public function store(array $data): TaskPriority{
         return TaskPriority::create($data);
     }
+
+    public function update(TaskPriority $taskPriority, array $data): TaskPriority{
+        $taskPriority->update($data);
+        return $taskPriority;
+    }
+
+    public function delete(TaskPriority $taskPriority): bool{
+        if ( $taskPriority->tasks()->exists() ) return false;
+        return $taskPriority->delete();
+    }
 }

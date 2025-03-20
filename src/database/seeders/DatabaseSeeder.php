@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
         TaskPriority::create(['name' => 'default', 'level' => 0, 'color' => '#b8e6fe']);
         TaskStatus::create(['name' => 'default', 'level' => 0, 'color'=> '#b8e6fe']);
 
+        if (config('app.env')) $this->call(DevSeeder::class);
+
         // Task::factory()->create()->assignees()->attach($user->id);
     }
 }

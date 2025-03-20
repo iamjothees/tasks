@@ -7,13 +7,16 @@ use App\Models\Task;
 use App\Models\TaskPriority;
 use App\Models\TaskStatus;
 use App\Services\TaskService;
+use App\Tables\Columns\TaskPrioritySwitcher;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Colors\Color;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
-use Filament\Support\Colors\Color;
 use Filament\Tables;
+use Filament\Resources\Components\Tab;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class ListTasks extends ListRecords
 {
@@ -23,6 +26,7 @@ class ListTasks extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+                ->url(null)            
                 ->slideOver()
                 ->modalWidth('lg')
                 ->modalHeading(
@@ -42,7 +46,20 @@ class ListTasks extends ListRecords
         ];
     }
 
+    public function getTabs(): array
+    {
+        if ( ($this->table ?? null) && $this->getTable()->getActiveFiltersCount()) return [];
 
+        return TaskStatus::withCount(['tasks' => fn ($q) => $q->whereRelation('assignees', 'assignee_id', Auth::id()) ])->orderBy('level')->get(['name', 'level', 'color'])
+            ->keyBy('name')
+            ->map(
+                fn ($status) =>
+                Tab::make($status->name)
+                    ->badge($status->tasks_count)
+                    ->badgeColor(Color::hex($status->color))
+                    ->modifyQueryUsing(fn (Builder $query) => $query->where('status_level', $status->level))
+            )->toArray();
+    }
 
     public function table(Table $table): Table
     {
@@ -50,17 +67,10 @@ class ListTasks extends ListRecords
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->formatStateUsing(fn ($state): string => str($state)->limit(50))
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('priority_level')
                     ->formatStateUsing(fn ($record) => $record->priority->name)
                     ->badge()
                     ->color(fn (Task $record) => Color::hex($record->priority->color))
-                    ->width(120)
-                    ->sortable(),
-                Tables\Columns\SelectColumn::make('status_level')
-                    ->options(fn () => TaskStatus::orderBy('level')->pluck('name','level'))
                     ->width(120)
                     ->sortable(),
             ])
@@ -106,6 +116,12 @@ class ListTasks extends ListRecords
                                     </a>
                                 '
                             ])
+                        )
+                        ->action(
+                            function (array $data, $record, $livewire){
+                                $record->update($data);
+                                $livewire->js('location.reload()');
+                            }
                         ),
                 ])
             ])

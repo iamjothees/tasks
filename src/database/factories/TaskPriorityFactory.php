@@ -21,7 +21,7 @@ class TaskPriorityFactory extends Factory
             'name' => fake()->word(),
             'description' => fake()->sentence(),
             'level' => fake()->unique()->numberBetween(TaskPriority::$minLevel, TaskPriority::$maxLevel),
-            'color' => fake()->color(),
+            'color' => fake()->hexColor(),
         ];
     }
 }

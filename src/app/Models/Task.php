@@ -18,6 +18,10 @@ class Task extends Model
         'completed_at' => 'datetime:d-m-Y\Th:i:s a',
     ];
 
+    public function scopeActive($query){
+        return $query->whereNull('completed_at');
+    }
+
     public function assignees(){
         return $this->belongsToMany(User::class, 'task_assignee', 'task_id', 'assignee_id')
             ->using(TaskAssignee::class)

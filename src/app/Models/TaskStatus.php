@@ -9,6 +9,10 @@ class TaskStatus extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'level';
+
+    public $incrementing = false;
+
     public static int $minLevel = -10;
     public static int $maxLevel = 100;
 

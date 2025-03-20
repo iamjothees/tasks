@@ -23,8 +23,8 @@ class TaskFactory extends Factory
             'title' => fake()->sentence(),
             'description' => fake()->sentence(),
 
-            'priority_level' => fn () => TaskPriority::factory()->create()->level,
-            'status_level' => fn () => TaskStatus::factory()->create()->level,
+            'priority_level' => fn () => TaskPriority::factory(),
+            'status_level' => fn () => TaskStatus::factory(),
 
             'next_schedule_at' => fake()->dateTimeBetween('now', '+1 week'),
             'recursion' => fake()->randomElement(TaskRecursion::cases()),

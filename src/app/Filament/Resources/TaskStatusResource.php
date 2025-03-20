@@ -6,6 +6,7 @@ use App\Filament\Resources\TaskStatusResource\Pages;
 use App\Filament\Resources\TaskStatusResource\RelationManagers;
 use App\Forms\Components\LevelSelector;
 use App\Models\TaskStatus;
+use App\Services\TaskStatusService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists;
@@ -36,15 +37,20 @@ class TaskStatusResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) =>  $query->orderBy('level', 'asc') )
+        ->modifyQueryUsing( fn (Builder $query) =>  $query->withCount([ 'tasks as active_tasks_count' => fn ($q) => $q->active() ]) )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->badge()
                     ->color(fn ($record) => Color::hex($record->color))
                     ->description(fn ($record) => str($record->description)->limit(50))
                     ->searchable(),
+                Tables\Columns\TextColumn::make('active_tasks_count')
+                    ->numeric()
+                    ->alignEnd()
+                    ->width('100px'),
                 Tables\Columns\TextColumn::make('level')
                     ->numeric()
+                    ->alignEnd()
                     ->sortable()
                     ->width('100px'),
                 Tables\Columns\TextColumn::make('created_at')
@@ -58,16 +64,18 @@ class TaskStatusResource extends Resource
                     ->toggleable()
                     ->toggledHiddenByDefault(),
             ])
+            ->defaultSort('level', 'asc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ])
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make()->modalWidth('md')
+                    ->extraAttributes(['class' => 'hidden'])
+                    ->using( fn ($record, $data, TaskStatusService $service) => $service->update(taskStatus: $record, data: $data)),
             ])
+            ->recordUrl(null)
+            ->recordAction('edit')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -94,6 +102,7 @@ class TaskStatusResource extends Resource
     {
         return [
             'index' => Pages\ManageTaskStatuses::route('/'),
+            'view' => Pages\ViewTaskStatuses::route('/{record}'),
         ];
     }
 

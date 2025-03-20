@@ -38,6 +38,8 @@ class TaskResource extends Resource
                     ->preload()
                     ->createOptionForm(TaskPriorityResource::getformSchema())
                     ->createOptionUsing(fn (array $data, TaskPriorityService $service) :int => $service->store(data: $data)->level )
+                    ->createOptionModalHeading('Create Priority')
+                    ->createOptionAction(fn ($action) => $action->modalWidth('md'))
                     ->default(fn (TaskSettings $settings) => $settings->default_priority_level)
                     ->required(),
                 Forms\Components\RichEditor::make('description')
@@ -50,6 +52,8 @@ class TaskResource extends Resource
                     ->preload()
                     ->createOptionForm(TaskStatusResource::getformSchema())
                     ->createOptionUsing(fn (array $data, TaskStatusService $service) :int => $service->store(data: $data)->level )
+                    ->createOptionModalHeading('Create Status')
+                    ->createOptionAction(fn ($action) => $action->modalWidth('md'))
                     ->default(fn (TaskSettings $settings) => $settings->default_status_level)
                     ->required(),
             ]);
@@ -78,32 +82,23 @@ class TaskResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->whereHas('assignees', fn ($q) => $q->where('assignee_id', Auth::id()));
+            ->whereHas('assignees', fn ($q) => $q->where('assignee_id', Auth::id()))
+            ->orderByDesc('priority_level');
     }
 
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->columns(1)
             ->schema([
-                Infolists\Components\Section::make('')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('title')
-                            ->label('Title'),
-                        Infolists\Components\TextEntry::make('description')
-                            ->label('Description')
-                            ->formatStateUsing(fn ($state) => $state ?: 'NIL')
-                            ->html()
-                            ->columnSpanFull(),
-                        Infolists\Components\TextEntry::make('priority.name')
-                            ->label('Priority')
-                            ->badge()
-                            ->color(fn ($record) => Color::hex($record->priority->color)),
-                        Infolists\Components\TextEntry::make('status.name')
-                            ->label('Status')
-                            ->badge()
-                            ->color(fn ($record) => Color::hex($record->status->color)),
-                    ])
-                    ->columns(2),
+                Infolists\Components\TextEntry::make('priority.name')
+                    ->label('Priority')
+                    ->badge()
+                    ->color(fn ($record) => Color::hex($record->priority->color)),
+                Infolists\Components\TextEntry::make('status.name')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn ($record) => Color::hex($record->status->color)),
             ]);
     }
 }

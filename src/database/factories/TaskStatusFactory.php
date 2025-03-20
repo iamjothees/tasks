@@ -20,7 +20,7 @@ class TaskStatusFactory extends Factory
             'name' => fake()->word(),
             'description' => fake()->sentence(),
             'level' => fake()->unique()->numberBetween(-127, 127),
-            'color' => fake()->color(),
+            'color' => fake()->hexColor(),
         ];
     }
 }
