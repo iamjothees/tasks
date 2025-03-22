@@ -16,11 +16,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('task_types', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+        });
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
 
             $table->string('title');
             $table->text('description')->nullable();
+            $table->string('type');
 
             $table->tinyInteger('priority_level');
             $table->foreign('priority_level')->references('level')->on('task_priorities')->onDelete('restrict')->onUpdate('cascade');

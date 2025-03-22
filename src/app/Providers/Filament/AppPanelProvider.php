@@ -2,12 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\TaskType;
+use App\Filament\Resources\TaskResource;
 use BetterFuturesStudio\FilamentLocalLogins\LocalLogins;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -61,11 +64,19 @@ class AppPanelProvider extends PanelProvider
             ->plugin(new LocalLogins())
             ->topNavigation()
             ->navigationGroups([
+                NavigationGroup::make('Tasks'),
                 NavigationGroup::make('Task Configs')
                     ->icon('heroicon-o-wrench-screwdriver'),
                 NavigationGroup::make('Settings')
                     ->icon('heroicon-o-cog-6-tooth'),
             ])
+            ->navigationItems(
+                collect(TaskType::cases())->map(function (TaskType $type) {
+                    return NavigationItem::make($type->value)
+                        ->url(fn () => TaskResource::getUrl('index', ['type' => $type->value]))
+                        ->group('Tasks');
+                })->toArray()
+            )
             ->databaseTransactions(true);
     }
     public function register(): void

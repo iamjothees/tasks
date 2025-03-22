@@ -23,6 +23,9 @@ class TaskResource extends Resource
     protected static ?string $model = Task::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static bool $shouldRegisterNavigation = false;
+
+    public $type = null;
 
     public static function form(Form $form): Form
     {
@@ -69,8 +72,8 @@ class TaskResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTasks::route('/'),
-            'create' => Pages\CreateTask::route('/create'),
+            'index' => Pages\ListTasks::route('{type?}/'),
+            'create' => Pages\CreateTask::route('/{type?}/create'),
             'view' => Pages\ViewTask::route('/{record}'),
             'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
@@ -82,6 +85,7 @@ class TaskResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
+            ->when(request()->route('type'), fn ($q, $type) => $q->where('type', $type))
             ->whereHas('assignees', fn ($q) => $q->where('assignee_id', Auth::id()))
             ->orderByDesc('priority_level');
     }

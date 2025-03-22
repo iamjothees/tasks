@@ -21,9 +21,11 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 class ListTasks extends ListRecords
 {
     protected static string $resource = TaskResource::class;
+    public $type = null;
 
     protected function getHeaderActions(): array
     {
+        $type = $this->type;
         return [
             Actions\CreateAction::make()
                 ->url(null)            
@@ -33,7 +35,7 @@ class ListTasks extends ListRecords
                     fn () => 
                     app(HtmlString::class, [
                         'html' => '
-                            <a wire:navigate href=\''.TaskResource::getUrl('create').'\' class="flex items-center gap-2 underline">
+                            <a wire:navigate href=\''.TaskResource::getUrl('create', ['type' => $type]).'\' class="flex items-center gap-2 underline">
                                 Create Task 
                                 <x-filament::icon >
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
@@ -48,17 +50,34 @@ class ListTasks extends ListRecords
 
     public function getTabs(): array
     {
-        if ( ($this->table ?? null) && $this->getTable()->getActiveFiltersCount()) return [];
+        $taskStatuses = TaskStatus::withCount([
+                    'tasks' => fn ($q) => 
+                        $q->whereRelation('assignees', 'assignee_id', Auth::id())
+                            ->when($this->type, fn ($q, $type) => $q->where('type', $type)) 
+                ])
+            ->orderBy('level')->get(['name', 'level', 'color']);
 
-        return TaskStatus::withCount(['tasks' => fn ($q) => $q->whereRelation('assignees', 'assignee_id', Auth::id()) ])->orderBy('level')->get(['name', 'level', 'color'])
+        return $taskStatuses
+            ->prepend(
+                TaskStatus::make([
+                    'name' => 'All',
+                    'level' => null,
+                    'color' => '#000000',
+                    'tasks_count' => $taskStatuses->sum('tasks_count')
+                ])
+            )
             ->keyBy('name')
             ->map(
                 fn ($status) =>
                 Tab::make($status->name)
                     ->badge($status->tasks_count)
                     ->badgeColor(Color::hex($status->color))
-                    ->modifyQueryUsing(fn (Builder $query) => $query->where('status_level', $status->level))
-            )->toArray();
+                    ->modifyQueryUsing(fn (Builder $query) => $query
+                        ->when($status->level, fn ($q, $level) => $q->where('status_level', $level))
+                        ->when($this->type, fn ($q, $type) => $q->where('type', $type))
+                    )
+            )
+            ->toArray();
     }
 
     public function table(Table $table): Table
@@ -67,6 +86,7 @@ class ListTasks extends ListRecords
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('type'),
                 Tables\Columns\TextColumn::make('priority_level')
                     ->formatStateUsing(fn ($record) => $record->priority->name)
                     ->badge()
@@ -85,7 +105,9 @@ class ListTasks extends ListRecords
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\ViewAction::make()->url(
+                        fn ($record) => $this->getResource()::getUrl('view', ['record' => $record])
+                    ),
                     Tables\Actions\ViewAction::make('view-slideover')
                         ->url(null)->slideOver()->modalWidth('lg')
                         ->extraAttributes(['class' => 'hidden'])
@@ -93,7 +115,7 @@ class ListTasks extends ListRecords
                             fn ($record) => 
                             app(HtmlString::class, [
                                 'html' => '
-                                    <a wire:navigate href=\''.self::getResource()::getUrl('view', [$record->id]).'\' class="flex items-center gap-2 underline">
+                                    <a wire:navigate href=\''.self::getResource()::getUrl('view', ['record' => $record]).'\' class="flex items-center gap-2 underline">
                                         View Task 
                                         <x-filament::icon >
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
@@ -108,7 +130,7 @@ class ListTasks extends ListRecords
                             fn ($record) => 
                             app(HtmlString::class, [
                                 'html' => '
-                                    <a wire:navigate href=\''.self::getResource()::getUrl('edit', [$record->id]).'\' class="flex items-center gap-2 underline">
+                                    <a wire:navigate href=\''.self::getResource()::getUrl('edit', ['record' => $record->id]).'\' class="flex items-center gap-2 underline">
                                         Edit Task 
                                         <x-filament::icon >
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
