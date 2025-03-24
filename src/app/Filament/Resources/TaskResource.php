@@ -72,7 +72,7 @@ class TaskResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTasks::route('{type?}/'),
+            'index' => Pages\ListTasks::route('/all/{type?}'),
             'create' => Pages\CreateTask::route('/{type?}/create'),
             'view' => Pages\ViewTask::route('/{record}'),
             'edit' => Pages\EditTask::route('/{record}/edit'),

@@ -63,6 +63,15 @@ class ViewTask extends ViewRecord
         ];
     }
 
+    public function getBreadcrumbs(): array
+    {
+        return [
+            self::getResource()::getUrl('index') => 'Tasks',
+            self::getResource()::getUrl('index', [$this->record->type]) => $this->record->type->label(),
+            'View',
+        ];
+    }
+
     public function description(Infolist $infolist): Infolist{
         return $infolist
             ->extraAttributes(['class'=> 'mt-3'])

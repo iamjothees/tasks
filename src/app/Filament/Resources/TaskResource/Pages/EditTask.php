@@ -18,4 +18,13 @@ class EditTask extends EditRecord
             Actions\RestoreAction::make(),
         ];
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            self::getResource()::getUrl('index') => 'Tasks',
+            self::getResource()::getUrl('index', [$this->record->type]) => $this->record->type->label(),
+            'Edit',
+        ];
+    }
 }

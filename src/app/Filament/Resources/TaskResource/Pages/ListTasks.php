@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TaskResource\Pages;
 
+use App\Enums\TaskType;
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
 use App\Models\TaskPriority;
@@ -45,6 +46,19 @@ class ListTasks extends ListRecords
                     ])
                 )
                 ->using(fn (array $data, TaskService $taskService) => $taskService->store(data: $data, user: Auth::user()))
+        ];
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            self::getResource()::getUrl('index') => 'Tasks',
+            ...(
+                TaskType::tryFrom($this->type)
+                    ? [self::getResource()::getUrl('index', [$this->type]) => TaskType::from($this->type)->label()]
+                    : []
+            ),
+            'List',
         ];
     }
 
