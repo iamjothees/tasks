@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\TaskRecursion;
-use App\Enums\TaskType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +13,6 @@ class Task extends Model
     use HasFactory, SoftDeletes;
     
     protected $casts = [
-        'type' => TaskType::class,
         'recursion' => TaskRecursion::class,
         'next_schedule_at' => 'datetime:d-m-Y\Th:i:s a',
         'completed_at' => 'datetime:d-m-Y\Th:i:s a',
@@ -36,6 +34,10 @@ class Task extends Model
 
     public function authAssigneePivot(){
         return $this->hasOne(TaskAssignee::class, 'assignee_id')->where('assignee_id', Auth::id());
+    }
+
+    public function type(){
+        return $this->belongsTo(TaskType::class,'type_id');
     }
 
     public function priority(){

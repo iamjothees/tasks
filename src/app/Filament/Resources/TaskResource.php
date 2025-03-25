@@ -85,7 +85,7 @@ class TaskResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->when(request()->route('type'), fn ($q, $type) => $q->where('type', $type))
+            ->when(request()->route('type'), fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type)))
             ->whereHas('assignees', fn ($q) => $q->where('assignee_id', Auth::id()))
             ->orderByDesc('priority_level');
     }

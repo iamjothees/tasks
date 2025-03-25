@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Enums\TaskRecursion;
-use App\Enums\TaskType;
 use App\Models\TaskPriority;
 use App\Models\TaskStatus;
+use App\Models\TaskType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +23,7 @@ class TaskFactory extends Factory
         return [
             'title' => fake()->sentence(),
             'description' => fake()->sentence(),
-            'type' => fake()->randomElement(TaskType::cases()),
+            'type_id' => TaskType::factory(),
 
             'priority_level' => fn () => TaskPriority::factory(),
             'status_level' => fn () => TaskStatus::factory(),

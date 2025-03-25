@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Enums\TaskType;
+use App\Models\TaskType;
 use App\Filament\Resources\TaskResource;
 use BetterFuturesStudio\FilamentLocalLogins\LocalLogins;
 use Filament\Http\Middleware\Authenticate;
@@ -71,9 +71,10 @@ class AppPanelProvider extends PanelProvider
                     ->icon('heroicon-o-cog-6-tooth'),
             ])
             ->navigationItems(
-                collect(TaskType::cases())->map(function (TaskType $type) {
-                    return NavigationItem::make($type->value)
-                        ->url(fn () => TaskResource::getUrl('index', ['type' => $type->value]))
+                TaskType::get(['name', 'slug'])
+                ->map(function (TaskType $type) {
+                    return NavigationItem::make($type->name)
+                        ->url(fn () => TaskResource::getUrl('index', ['type' => $type->slug]))
                         ->group('Tasks');
                 })->toArray()
             )

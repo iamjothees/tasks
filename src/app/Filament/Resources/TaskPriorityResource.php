@@ -26,6 +26,7 @@ class TaskPriorityResource extends Resource
     protected static ?string $model = TaskPriority::class;
     
     protected static ?string $navigationGroup = "Task Configs";
+    protected static ?int $navigationSort = 2;
     protected static ?string $label = "Priority";
     
     public static function form(Form $form): Form

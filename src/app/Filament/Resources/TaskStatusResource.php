@@ -23,6 +23,7 @@ class TaskStatusResource extends Resource
     protected static ?string $model = TaskStatus::class;
 
     protected static ?string $navigationGroup = "Task Configs";
+    protected static ?int $navigationSort = 3;
     protected static ?string $label = "Status";
 
     

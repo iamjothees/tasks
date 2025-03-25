@@ -67,7 +67,7 @@ class ListTasks extends ListRecords
         $taskStatuses = TaskStatus::withCount([
                     'tasks' => fn ($q) => 
                         $q->whereRelation('assignees', 'assignee_id', Auth::id())
-                            ->when($this->type, fn ($q, $type) => $q->where('type', $type)) 
+                            ->when($this->type, fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type))) 
                 ])
             ->orderBy('level')->get(['name', 'level', 'color']);
 
@@ -88,7 +88,7 @@ class ListTasks extends ListRecords
                     ->badgeColor(Color::hex($status->color))
                     ->modifyQueryUsing(fn (Builder $query) => $query
                         ->when($status->level, fn ($q, $level) => $q->where('status_level', $level))
-                        ->when($this->type, fn ($q, $type) => $q->where('type', $type))
+                        ->when($this->type, fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type)))
                     )
             )
             ->toArray();
@@ -100,7 +100,7 @@ class ListTasks extends ListRecords
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type'),
+                Tables\Columns\TextColumn::make('type.name'),
                 Tables\Columns\TextColumn::make('priority_level')
                     ->formatStateUsing(fn ($record) => $record->priority->name)
                     ->badge()
