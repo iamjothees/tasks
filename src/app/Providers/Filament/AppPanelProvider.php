@@ -76,7 +76,13 @@ class AppPanelProvider extends PanelProvider
                     return NavigationItem::make($type->name)
                         ->url(fn () => TaskResource::getUrl('index', ['type' => $type->slug]))
                         ->group('Tasks');
-                })->toArray()
+                })
+                ->prepend(
+                    NavigationItem::make('All Tasks')
+                        ->url(fn () => TaskResource::getUrl('index'))
+                        ->group('Tasks')
+                )
+                ->toArray()
             )
             ->databaseTransactions(true);
     }
