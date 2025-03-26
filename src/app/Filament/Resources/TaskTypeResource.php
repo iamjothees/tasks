@@ -25,19 +25,7 @@ class TaskTypeResource extends Resource
     {
         return $form
             ->columns(1)
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(
-                        fn ($state, $set) => $set('slug', str($state)->slug('-'))
-                    ),
-                Forms\Components\TextInput::make('slug')
-                    ->unique(ignoreRecord: true)
-                    ->required()
-                    ->maxLength(255),
-            ]);
+            ->schema(self::getformSchema());
     }
 
     public static function table(Table $table): Table
@@ -80,6 +68,22 @@ class TaskTypeResource extends Resource
     {
         return [
             'index' => Pages\ManageTaskTypes::route('/'),
+        ];
+    }
+
+    public static function getformSchema(): array{
+        return [
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->maxLength(255)
+                ->live(onBlur: true)
+                ->afterStateUpdated(
+                    fn ($state, $set) => $set('slug', str($state)->slug('-'))
+                ),
+            Forms\Components\TextInput::make('slug')
+                ->unique(ignoreRecord: true)
+                ->required()
+                ->maxLength(255),
         ];
     }
 }

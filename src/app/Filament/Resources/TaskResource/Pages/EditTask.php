@@ -23,7 +23,7 @@ class EditTask extends EditRecord
     {
         return [
             self::getResource()::getUrl('index') => 'Tasks',
-            self::getResource()::getUrl('index', [$this->record->type]) => $this->record->type->label(),
+            self::getResource()::getUrl('index', [$this->record->type]) => $this->record->type->name,
             'Edit',
         ];
     }

@@ -6,7 +6,7 @@ use Spatie\LaravelSettings\Settings;
 
 class TaskSettings extends Settings
 {
-
+    public string $default_type;
     public int $default_priority_level;
     public int $default_status_level;
 

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\TaskPriority;
 use App\Models\TaskStatus;
+use App\Models\TaskType;
 use App\Settings\TaskSettings AS Settings;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,6 +20,11 @@ class TaskSettings extends SettingsPage
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('default_type')
+                    ->options(TaskType::pluck('name', 'slug'))
+                    ->native(false)
+                    ->label('Default Type')
+                    ->required(),
                 Forms\Components\Select::make('default_priority_level')
                     ->options(TaskPriority::pluck('name', 'level'))
                     ->native(false)

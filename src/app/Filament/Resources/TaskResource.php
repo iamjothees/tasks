@@ -34,6 +34,15 @@ class TaskResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->required(),
+                Forms\Components\Select::make('type_id')
+                    ->relationship(name: 'type', titleAttribute: 'name')
+                    ->searchable()
+                    ->native(false)
+                    ->preload()
+                    ->createOptionForm(TaskTypeResource::getformSchema())
+                    ->createOptionAction(fn ($action) => $action->modalWidth('md'))
+                    ->default(fn (TaskSettings $settings) => $settings->default_type)
+                    ->required(),
                 Forms\Components\Select::make('priority_level')
                     ->relationship(name: 'priority', titleAttribute: 'name', modifyQueryUsing: fn ($query) => $query->orderByDesc('level'))
                     ->searchable()
@@ -72,8 +81,8 @@ class TaskResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTasks::route('/all/{type?}'),
-            'create' => Pages\CreateTask::route('/{type?}/create'),
+            'index' => Pages\ListTasks::route('/all/{type:slug?}'),
+            'create' => Pages\CreateTask::route('/create/{type:slug?}'),
             'view' => Pages\ViewTask::route('/{record}'),
             'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
@@ -85,7 +94,7 @@ class TaskResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->when(request()->route('type'), fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type)))
+            ->when(request()->route('type'), fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type->slug)))
             ->whereHas('assignees', fn ($q) => $q->where('assignee_id', Auth::id()))
             ->orderByDesc('priority_level');
     }

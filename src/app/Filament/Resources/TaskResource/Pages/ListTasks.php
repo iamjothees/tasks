@@ -2,13 +2,12 @@
 
 namespace App\Filament\Resources\TaskResource\Pages;
 
-use App\Enums\TaskType;
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
 use App\Models\TaskPriority;
 use App\Models\TaskStatus;
+use App\Models\TaskType;
 use App\Services\TaskService;
-use App\Tables\Columns\TaskPrioritySwitcher;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Colors\Color;
@@ -22,27 +21,27 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 class ListTasks extends ListRecords
 {
     protected static string $resource = TaskResource::class;
-    public $type = null;
+    public ?TaskType $type = null;
 
     protected function getHeaderActions(): array
     {
-        $type = $this->type;
         return [
             Actions\CreateAction::make()
+                ->label("New Task")
                 ->url(null)            
                 ->slideOver()
                 ->modalWidth('lg')
                 ->modalHeading(
                     fn () => 
                     app(HtmlString::class, [
-                        'html' => '
-                            <a wire:navigate href=\''.TaskResource::getUrl('create', ['type' => $type]).'\' class="flex items-center gap-2 underline">
-                                Create Task 
+                        'html' => "
+                            <a wire:navigate href='".TaskResource::getUrl('create')."' class='flex items-center gap-2 underline'>
+                                Create Task
                                 <x-filament::icon >
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>
+                                    <svg  xmlns='http://www.w3.org/2000/svg'  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  stroke='currentColor'  stroke-width='2'  stroke-linecap='round'  stroke-linejoin='round'  class='icon icon-tabler icons-tabler-outline icon-tabler-external-link'><path stroke='none' d='M0 0h24v24H0z' fill='none'/><path d='M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6' /><path d='M11 13l9 -9' /><path d='M15 4h5v5' /></svg>
                                 </x-filament::icon > 
                             </a>
-                        '
+                        "
                     ])
                 )
                 ->using(fn (array $data, TaskService $taskService) => $taskService->store(data: $data, user: Auth::user()))
@@ -54,9 +53,9 @@ class ListTasks extends ListRecords
         return [
             self::getResource()::getUrl('index') => 'Tasks',
             ...(
-                TaskType::tryFrom($this->type)
-                    ? [self::getResource()::getUrl('index', [$this->type]) => TaskType::from($this->type)->label()]
-                    : []
+                    $this->type
+                        ? [self::getResource()::getUrl('index', [$this->type->slug]) => $this->type->name]
+                        : []
             ),
             'List',
         ];
@@ -67,7 +66,7 @@ class ListTasks extends ListRecords
         $taskStatuses = TaskStatus::withCount([
                     'tasks' => fn ($q) => 
                         $q->whereRelation('assignees', 'assignee_id', Auth::id())
-                            ->when($this->type, fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type))) 
+                            ->when($this->type, fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type->slug))) 
                 ])
             ->orderBy('level')->get(['name', 'level', 'color']);
 
@@ -88,7 +87,7 @@ class ListTasks extends ListRecords
                     ->badgeColor(Color::hex($status->color))
                     ->modifyQueryUsing(fn (Builder $query) => $query
                         ->when($status->level, fn ($q, $level) => $q->where('status_level', $level))
-                        ->when($this->type, fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type)))
+                        ->when($this->type, fn ($q, $type) => $q->whereHas('type', fn ($q) => $q->whereSlug($type->slug)))
                     )
             )
             ->toArray();

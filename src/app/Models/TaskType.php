@@ -9,4 +9,8 @@ class TaskType extends Model
 {
     /** @use HasFactory<\Database\Factories\TaskTypeFactory> */
     use HasFactory;
+
+    public function tasks(){
+        return $this->hasMany(Task::class, 'type_id');
+    }
 }
