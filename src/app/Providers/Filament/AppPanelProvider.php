@@ -63,27 +63,6 @@ class AppPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->plugin(new LocalLogins())
             ->topNavigation()
-            ->navigationGroups([
-                NavigationGroup::make('Tasks'),
-                NavigationGroup::make('Task Configs')
-                    ->icon('heroicon-o-wrench-screwdriver'),
-                NavigationGroup::make('Settings')
-                    ->icon('heroicon-o-cog-6-tooth'),
-            ])
-            ->navigationItems(
-                TaskType::get(['name', 'slug'])
-                ->map(function (TaskType $type) {
-                    return NavigationItem::make($type->name)
-                        ->url(fn () => TaskResource::getUrl('index', ['type' => $type->slug]))
-                        ->group('Tasks');
-                })
-                ->prepend(
-                    NavigationItem::make('All Tasks')
-                        ->url(fn () => TaskResource::getUrl('index'))
-                        ->group('Tasks')
-                )
-                ->toArray()
-            )
             ->databaseTransactions(true);
     }
     public function register(): void
