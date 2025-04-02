@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\TaskType;
-use App\Models\User;
 use Tests\TestCase;
 
 pest()->uses(TestCase::class);
@@ -12,8 +11,7 @@ it('prevents dashboard from guest', function () {
 });
 
 it('opens dashboard', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
+    $this->actingAs($this->user);
     
     // ACT && ASSERT
     $this->get(route('filament.app.pages.dashboard'))
@@ -21,8 +19,7 @@ it('opens dashboard', function () {
 });
 
 it('has menus', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
+    $this->actingAs($this->user);
     
     // ACT && ASSERT
     $this->get(route('filament.app.pages.dashboard'))
