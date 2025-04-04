@@ -2,9 +2,7 @@
 
 use App\Models\TaskStatus;
 use App\Services\TaskStatusService;
-use Tests\TestCase;
 
-pest()->uses(TestCase::class);
 it('deletes only statuses without tasks', function (){
     // Arrange
     $status1 = TaskStatus::factory()->hasTasks(3)->create();

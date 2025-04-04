@@ -3,11 +3,8 @@
 use App\Actions\Tasks\CalculateNextScheduleAtAction;
 use App\Enums\TaskRecursion;
 use App\Models\Task;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
 it('calculates_next_schedule_at', function () {
     // Arrange
     $task = Task::factory()->create([

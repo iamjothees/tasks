@@ -2,9 +2,7 @@
 
 use App\Models\TaskPriority;
 use App\Services\TaskPriorityService;
-use Tests\TestCase;
 
-pest()->uses(TestCase::class);
 it('deletes only priorities without tasks', function (){
     // Arrange
     $priority1 = TaskPriority::factory()->hasTasks(3)->create();

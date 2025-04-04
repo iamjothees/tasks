@@ -1,9 +1,6 @@
 <?php
 
 use App\Models\TaskPriority;
-use Tests\TestCase;
-
-pest()->uses(TestCase::class);
 
 describe('relationship', function (){
     it('tasks', function (){

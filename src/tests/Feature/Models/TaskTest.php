@@ -3,9 +3,7 @@
 use App\Models\Task;
 use App\Models\TaskPriority;
 use App\Models\TaskStatus;
-use Tests\TestCase;
 
-pest()->uses(TestCase::class);
 test('priority relationship', function () {
     // Arrange
     $task = Task::factory()->create();

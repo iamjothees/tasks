@@ -1,26 +1,24 @@
 <?php
 
 use App\Models\TaskType;
-use Tests\TestCase;
+use Illuminate\Support\Facades\Auth;
 
-pest()->uses(TestCase::class);
+pest()->group('dashboard');
 
 it('prevents dashboard from guest', function () {
     // ACT & ASSERT
+    Auth::logout();
     $this->get(route('filament.app.pages.dashboard'))->assertStatus(302);
 });
 
 it('opens dashboard', function () {
-    $this->actingAs($this->user);
-    
     // ACT && ASSERT
     $this->get(route('filament.app.pages.dashboard'))
         ->assertOk();
 });
 
 it('has menus', function () {
-    $this->actingAs($this->user);
-    
+        
     // ACT && ASSERT
     $this->get(route('filament.app.pages.dashboard'))
         ->assertOk()

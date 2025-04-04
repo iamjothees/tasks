@@ -3,12 +3,8 @@
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
 
 it('can act on task timer', function () {
     // Arrange

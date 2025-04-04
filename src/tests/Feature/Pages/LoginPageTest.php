@@ -1,9 +1,11 @@
 <?php
 
-use Tests\TestCase;
+use Illuminate\Support\Facades\Auth;
 
-pest()->uses(TestCase::class);
+pest()->group('login');
+
 it('opens login page', function () {
+    Auth::logout();
     // Act & Assert
     $this->get(route('filament.app.auth.login'))
         ->assertStatus(200)
@@ -13,13 +15,13 @@ it('opens login page', function () {
 it('opens login page only for guests', function () {
     // Act & Assert
     $this->get(route('filament.app.auth.login'))
-        ->assertStatus(200);
+        ->assertStatus(302);
 
     // Arrange
-    $this->actingAs($this->user);
+    Auth::logout();
     // Act & Assert
     $this->get(route('filament.app.auth.login'))
-        ->assertStatus(302);
+        ->assertStatus(200);
 
 
 });

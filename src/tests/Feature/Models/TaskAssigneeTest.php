@@ -4,10 +4,6 @@ use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\TaskActivityPause;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-
-pest()->uses(TestCase::class, RefreshDatabase::class);
 
 it('active_activity_relation', function () {
     // Arrange
