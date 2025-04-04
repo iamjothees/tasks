@@ -9,6 +9,7 @@ uses(Tests\TestCase::class)->in('Feature')
 
 pest()->group('layout')->in('Feature/Pages/Layout');
 pest()->group('pages')->in('Feature/Pages');
+pest()->group('tasks')->in('Feature/Pages/Tasks');
 
 function loginAsUser(?User $user = null): User{
     $user ??= User::factory()->create();

@@ -1,14 +1,19 @@
 <?php
 
 use App\Filament\Resources\TaskResource;
+use App\Filament\Resources\TaskResource\Pages\ListTasks;
+use App\Filament\Resources\TaskResource\Pages\ViewTask;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaskType;
+use Filament\Actions\CreateAction;
+use Filament\Actions\ViewAction;
 use Illuminate\Support\Facades\Auth;
 
-pest()->group('tasks');
+use function Pest\Livewire\livewire;
+
+pest()->group('tasks list page');
 it('opens tasks', function () {
-    
     // ACT & ASSERT
     $this->get(TaskResource::getUrl('index'))->assertOk();
 });
@@ -20,7 +25,7 @@ it('prevents tasks from guest', function () {
     $this->get(TaskResource::getUrl('index'))->assertStatus(302);
 });
 
-it('lists tasks only by assignee', function () {
+it('lists tasks by assignee', function () {
     // ARRANGE
     $tasks = Task::factory()->count(10)->create();
 
@@ -38,7 +43,7 @@ it('lists tasks only by assignee', function () {
         ->assertDontSee($othersTasks->pluck('title')->toArray());
 });
 
-it('lists tasks only by types', function () {
+it('lists tasks by types', function () {
     // ARRANGE
         
     $typeTasks = Task::factory()->recycle($type = TaskType::factory()->create([ 'name' => 'Feature' ]))->count(5)->create();
@@ -55,7 +60,7 @@ it('lists tasks only by types', function () {
         ->assertDontSee($randomTypeTasks->pluck('title')->toArray());
 });
 
-it('lists tasks only by statuses', function () {
+it('lists tasks by statuses', function () {
     // ARRANGE
         
     $statusTasks = Task::factory()->recycle($status = TaskStatus::factory()->create([ 'name' => 'Urgent' ]))->count(5)->create();
@@ -72,7 +77,7 @@ it('lists tasks only by statuses', function () {
         ->assertDontSee($randomStatusTasks->pluck('title')->toArray());
 });
 
-it('lists tasks only by type and statuses', function () {
+it('lists tasks by type and statuses', function () {
     // ARRANGE
         
     $typeAndStatusTasks = Task::factory()
@@ -92,4 +97,31 @@ it('lists tasks only by type and statuses', function () {
         ->assertOk()
         ->assertSee($typeAndStatusTasks->pluck('title')->toArray())
         ->assertDontSee($typeTasks->merge($statusTasks)->pluck('title')->toArray());
+});
+
+it('performs page actions', function () {
+    livewire(ListTasks::class)
+        ->mountAction(CreateAction::class)
+        ->assertSee('Create Task');
+});
+
+it('performs table actions', function () {
+    // ARRANGE
+    $task = Task::factory()->create();
+    $task->assignees()->attach(Auth::user());
+    
+    // ACT & ASSERT
+    livewire(ListTasks::class)
+
+        ->mountTableAction('edit-slideover', $task)
+        ->assertSee('Edit Task')
+        ->unmountTableAction()
+        ->assertDontSee('Edit Task')
+
+        ->mountTableAction('view-slideover', $task)
+        ->assertSee('View Task')
+        ->unmountTableAction()
+        ->assertDontSee('View Task')
+        
+        ->assertTableActionHasUrl(ViewAction::class, ViewTask::getUrl([$task]), $task);
 });
